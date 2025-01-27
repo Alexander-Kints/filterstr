@@ -5,6 +5,8 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import java.io.*;
+
 // -o путь для результатов
 // -p префикс для имен файлов с результатами
 // -a режим добавления (по умолчания результат перезаписывается)
@@ -22,10 +24,29 @@ public class Main {
 
     public static void main(String[] args) {
         CommandLine commandLine = getCommandLine(args);
-        for (String a : commandLine.getArgs()) System.out.println(a);
-        System.out.println("o: " + commandLine.getOptionValue("o"));
-        System.out.println("p: " + commandLine.getOptionValue("p"));
-        System.out.println("f: " + commandLine.getOptionValue("f"));
+        FileFilter fileFilter = new FileFilter(commandLine.getArgs());
+        try {
+            fileFilter.filter();
+        } catch (IOException e) {
+            System.out.println("Fatal error: " + e.getMessage());
+            System.exit(2);
+        }
+
+        System.out.println("Int");
+        for (Long el : fileFilter.getLongArrayList()) {
+            System.out.println(el);
+        }
+
+        System.out.println("Double");
+        for (Double el : fileFilter.getDoubleArrayList()) {
+            System.out.println(el);
+        }
+
+        System.out.println("Str");
+        for (String el : fileFilter.getStringArrayList()) {
+            System.out.println(el);
+        }
+
     }
 
     private static CommandLine getCommandLine(String[] args) {
@@ -40,10 +61,11 @@ public class Main {
         try {
             commandLine = new DefaultParser().parse(options, args);
         } catch (ParseException e) {
-            System.out.print("Invalid arguments: ");
-            System.out.println(e.getMessage());
+            System.out.println("Fatal error! Invalid arguments: " + e.getMessage());
             System.exit(1);
         }
+
+        //TODO непустой список файлов обработать
 
         return commandLine;
     }
