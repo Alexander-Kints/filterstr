@@ -6,14 +6,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import java.nio.file.Paths;
 
-// -o путь для результатов
-// -p префикс для имен файлов с результатами
-// -a режим добавления (по умолчания результат перезаписывается)
-// -s краткая статистика (кол-во элеметов в каждом рез. файле)
-// -f полная статистика (дополнительно к краткой)
-// числа: min, max, sum, avg
-// строки: длины самой короткой и самой длинной
-
 public class Main {
     private static final String FILEPATH_COMMAND_NAME = "o";
     private static final String PREFIX_COMMAND_NAME = "p";

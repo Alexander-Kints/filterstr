@@ -17,7 +17,8 @@ public class FileFilter {
     }
 
     public void filter() {
-        for (String file : sourceFiles) {
+        ArrayList<BufferedReader> readers = new ArrayList<>();
+        for (String file: sourceFiles) {
             BufferedReader bufferedReader;
             try {
                 bufferedReader = new BufferedReader(new FileReader(new File(file)));
@@ -26,35 +27,23 @@ public class FileFilter {
                 continue;
             }
 
-            String sourceLine;
-            while (true) {
+            readers.add(bufferedReader);
+        }
+
+        while (!readers.isEmpty()) {
+            for (int i = 0; i < readers.size(); i++) {
+                String sourceLine;
+                BufferedReader reader = readers.get(i);
                 try {
-                    sourceLine = bufferedReader.readLine();
+                    sourceLine = reader.readLine();
                 } catch (IOException e) {
                     System.out.println("Warn: " + e.getMessage());
-                    break;
+                    removeReader(readers, reader);
+                    continue;
                 }
 
-                if (sourceLine == null) break;
-
-                try {
-                    Long intNum = Long.parseLong(sourceLine);
-                    longArrayList.add(intNum);
-                    continue;
-                } catch (NumberFormatException ignored) {}
-
-                try {
-                    Double doubleNum = Double.parseDouble(sourceLine);
-                    doubleArrayList.add(doubleNum);
-                    continue;
-                } catch (NumberFormatException ignored) {}
-
-                stringArrayList.add(sourceLine);
-            }
-            try {
-                bufferedReader.close();
-            } catch (IOException e) {
-                System.out.println("Warn: " + e.getMessage());
+                if (sourceLine != null) defineStringType(sourceLine);
+                else removeReader(readers, reader);
             }
         }
     }
@@ -95,6 +84,31 @@ public class FileFilter {
         System.out.println("-Strings-");
         System.out.println("Max: " + StatisticsCalculator.getMaxStringLength(stringArrayList));
         System.out.println("Min: " + StatisticsCalculator.getMinStringLength(stringArrayList));
+    }
+
+    private void removeReader(ArrayList<BufferedReader> readers, BufferedReader reader) {
+        try {
+            reader.close();
+        } catch (IOException e) {
+            System.out.println("Warn: " + e.getMessage());
+        }
+        readers.remove(reader);
+    }
+
+    private void defineStringType(String string) {
+        try {
+            Long intNum = Long.parseLong(string);
+            longArrayList.add(intNum);
+            return;
+        } catch (NumberFormatException ignored) {}
+
+        try {
+            Double doubleNum = Double.parseDouble(string);
+            doubleArrayList.add(doubleNum);
+            return;
+        } catch (NumberFormatException ignored) {}
+
+        stringArrayList.add(string);
     }
 
     private void outputToFile(String filepath, ArrayList<?> list, boolean aMode) {
